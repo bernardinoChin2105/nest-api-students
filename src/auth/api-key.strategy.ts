@@ -13,8 +13,7 @@ export class ApiKeyStrategy extends PassportStrategy(HeaderAPIKeyStrategy) {
         super(
             // Ejemplo: Authorization: 'ApiKey ca03na188ame03u1d78620de67282882a84'
             { header: 'Authorization', prefix: 'Api-Key ' },
-            // ...
-            false,        
+            false,
             (apikey: string, done: any) => {
                 const keyExists = this.authService.validateApiKey(apikey);
                 return done(keyExists);
