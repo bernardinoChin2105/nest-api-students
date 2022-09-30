@@ -1,0 +1,81 @@
+service: nest-api-students
+
+plugins:
+  - serverless-dynamodb-local
+  - serverless-offline  
+
+provider:
+  stage: dev
+  name: aws
+  runtime: nodejs14.x  
+  environment:    
+    STUDENTS_TABLE_NAME: ${self:custom.studentsTable.name}
+    CONFIGURATION_TABLE_NAME: ${self:custom.configurationTable.name}
+    DYNAMODB_ENDPOINT: ${self:custom.endpoints.dynamodbUrl}
+  iamRoleStatements:
+    - Effect: Allow
+      Action: 
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: 
+        - ${self:custom.studentsTable.arn}
+        - ${self:custom.configurationTable.arn}
+
+functions:
+  students: 
+    handler: dist/main.handler
+    events:
+      - http: 
+          method: ANY
+          path: '{proxy+}'
+
+resources:
+  Resources:
+    studentsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.studentsTable.name}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    configurationTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.configurationTable.name}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+package:
+  patterns:
+    - '!.dynamodb/**'
+
+custom:
+  optimize:
+    external: ['swagger-ui-dist']
+  studentsTable:
+    name: ${self:service}-${self:provider.stage}-students
+    arn: !GetAtt studentsTable.Arn
+  configurationTable:
+    name: ${self:service}-${self:provider.stage}-configuration
+    arn: !GetAtt configurationTable.Arn
+  dynamodb:
+    stages:
+      - ${self:provider.stage}
+    start:
+      migrate:true
+      sharedDb:true
+  endpoints:
+    dynamodbUrl: 'http://localhost:8000'
