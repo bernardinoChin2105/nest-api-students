@@ -59,12 +59,9 @@ Open the serverless.yml file and change the following properties based on what y
 **provider.stage**: Needed for resolving the name of the database to be created and consumed on AWS DynamoDb service.
 ![provider.stage](https://i.imgur.com/cQCCpPq.png)
 
-**provider.environment.IS_OFFLINE**: Set true if you want your project to work with dynamoDB local instance. 
-![provider.environment.IS_OFFLINE](https://i.imgur.com/ho7aGrI.png)
-
 ## Run
 
-Install de local instance of dynamoDB
+Install the local instance of dynamoDB
 ```
 
 $ serverless dynamodb install
